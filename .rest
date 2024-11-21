@@ -1,0 +1,16 @@
+# get http://host.docker.internal:8089/tools
+get http://localhost:8089/tools
+accept: application/json
+
+###
+#all products#
+post http://localhost:8089/tools/get_products_all/calls
+accept: application/json
+Content-Type: application/json
+
+{
+  "agent_id": "",
+  "session_id": "",
+  "arguments":{
+  }
+}
