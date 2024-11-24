@@ -110,11 +110,11 @@ class Categories(enum.Enum):
     LIGHTING = "Lighting"
     NETWORKING = "Networking"
     LAPTOP = "Laptop"
+    
+
 
 # verify if product category is in stock
 def get_in_stock(category: Categories) -> ToolResult:
-    print(category.value)
-    in_stock = []
     all_db = (
         supabase.table("products")
         .select("id, title, variant_inventory_qty")
@@ -122,30 +122,26 @@ def get_in_stock(category: Categories) -> ToolResult:
         .execute()
     )
 
-    for item in all_db.data:
-        if item["variant_inventory_qty"] > 2:
-            in_stock.append(item["variant_inventory_qty"])
-
-    return ToolResult(len(in_stock) > 2)
+    in_stock_count = sum(1 for item in all_db.data if item["variant_inventory_qty"] > 2)
+    return ToolResult(in_stock_count > 2)
 
 # fetch products by tags
 def get_products_by_tags(category: Categories, tags: str) -> ToolResult:
     tags_list = tags.split(",")
-    products = []  # This will store unique products
-    unique_ids = set()  # To track added product IDs
-
-    for item in tags_list:
+    unique_products = {}
+    
+    for tag in tags_list:
         item_db = (
             supabase.table("products")
-            .select("id, title, variant_inventory_qty, variant_price, tags, body_html")
+            .select(
+                "id, title, variant_inventory_qty, variant_price, tags, body_html"
+            )
             .eq("type", category.value)
-            .contains("tags", [item])
+            .contains("tags", [tag])
             .execute()
         )
         if item_db and item_db.data:
             for product in item_db.data:
-                if product["id"] not in unique_ids:
-                    unique_ids.add(product["id"])
-                    products.append(product)
+                unique_products[product["id"]] = product
 
-    return ToolResult(products)
+    return ToolResult(list(unique_products.values()))

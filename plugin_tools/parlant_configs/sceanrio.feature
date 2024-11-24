@@ -8,6 +8,7 @@ Feature: Guidelines
         And a guideline "in_stock", to verify if the type of product is in stock when a user asks anything about a product
         And a guideline "ask_for_specs", to ask the user what exactly is he looking for when the product type is in stock
         And a guideline connection whereby "in_stock" entails "ask_for_specs"
+        
         And the tool "get_in_stock"
         And an association between "in_stock" and "get_in_stock"
         And a guideline "recommend_products", to recommend 3 most suitable products when the user mentions product usage.
@@ -18,7 +19,8 @@ Feature: Guidelines
         Then a single message event is emitted
         And the message contains request for clarification
 
-    Scenario: The agent follows a the correct guideline with faulty configuration
+
+    Scenario: The agent 
         Given an agent
         And a guideline "in_stock", to verify if the type of product exists when a user asks anything about a product
         And a guideline "ask_for_specs", to ask the user what exactly is he looking for when a user asks anything about a product

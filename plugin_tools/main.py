@@ -4,7 +4,8 @@ from parlant.core.tools import ToolContext, ToolResult
 from supabase import create_client
 from dotenv import load_dotenv
 import os
-from enum import Enum
+from plugin_tools.store import Categories, Tags, TAG_VALUES
+# from store import Categories, Tags, TAG_VALUES
 
 load_dotenv()
 supabase_url = os.environ["SUPABASE_URL"]
@@ -12,41 +13,16 @@ supabase_anon = os.environ["SUPABASE_ANON_KEY"]
 supabase = create_client(supabase_url, supabase_anon)
 
 
-class Categories(Enum):
-    GRAPHICSCARD = "Graphics Card"
-    PROCESSOR = "Processor"
-    STORAGE = "Storage"
-    POWER_SUPPLY = "Power Supply"
-    MOTHERBOARD = "Motherboard"
-    MEMORY = "Memory"
-    CASE = "Case"
-    CPUCOOLER = "CPU Cooler"
-    MONITOR = "Monitor"
-    KEYBOARD = "Keyboard"
-    MOUSE = "Mouse"
-    HEADSET = "Headset"
-    AUDIO = "Audio"
-    COOLING = "Cooling"
-    ACCESSORIES = "Accessories"
-    LIGHTING = "Lighting"
-    NETWORKING = "Networking"
-    LAPTOP = "Laptop"
-
-
-# class Tags(Enum):
-
-
 async def main():
     # fetch all the products from the db
     @tool(id="get_products_all")
     async def get_products_all(context: ToolContext) -> ToolResult:
-        all_db = supabase.table("products").select("tags").execute()
+        all_db = supabase.table("products").select("*").execute()
         return ToolResult(all_db.data)
 
     # verify if product category is in stock
     @tool(id="get_in_stock")
     async def get_in_stock(context: ToolContext, category: Categories) -> ToolResult:
-        in_stock = []
         all_db = (
             supabase.table("products")
             .select("id, title, variant_inventory_qty")
@@ -54,11 +30,10 @@ async def main():
             .execute()
         )
 
-        for item in all_db.data:
-            if item["variant_inventory_qty"] > 2:
-                in_stock.append(item["variant_inventory_qty"])
-
-        return ToolResult(len(in_stock) > 2)
+        in_stock_count = sum(
+            1 for item in all_db.data if item["variant_inventory_qty"] > 2
+        )
+        return ToolResult(in_stock_count > 2)
 
     # fetch products by tags
     @tool(id="get_products_by_tags")
@@ -66,29 +41,32 @@ async def main():
         context: ToolContext, category: Categories, tags: str
     ) -> ToolResult:
         tags_list = tags.split(",")
-        products = []  # This will store unique products
-        unique_ids = set()  # To track added product IDs
+        unique_products = {}
 
-        for item in tags_list:
+        for tag in tags_list:
             item_db = (
                 supabase.table("products")
                 .select(
                     "id, title, variant_inventory_qty, variant_price, tags, body_html"
                 )
                 .eq("type", category.value)
-                .contains("tags", [item])
+                .contains("tags", [tag])
                 .execute()
             )
             if item_db and item_db.data:
                 for product in item_db.data:
-                    if product["id"] not in unique_ids:
-                        unique_ids.add(product["id"])
-                        products.append(product)
+                    unique_products[product["id"]] = product
 
-        return ToolResult(products)
+        return ToolResult(list(unique_products.values()))
+    
+    @tool(id="get_products_by_tags_2")
+    async def get_products_by_tags_2(context: ToolContext, category: Categories, tags:Tags)-> ToolResult:
+        # print(category, tags)
+        # print(TAG_VALUES)
+        return ToolResult(TAG_VALUES[tags])
 
     async with PluginServer(
-        tools=[get_products_all, get_in_stock, get_products_by_tags]
+        tools=[get_products_all, get_in_stock, get_products_by_tags, get_products_by_tags_2]
     ):
         pass
 

@@ -4,7 +4,7 @@ accept: application/json
 
 ###
 #all products#
-post http://localhost:8089/tools/get_products_all/calls
+post http://localhost:8089/tools/get_products_by_tags_2/calls
 accept: application/json
 Content-Type: application/json
 
@@ -12,5 +12,7 @@ Content-Type: application/json
   "agent_id": "",
   "session_id": "",
   "arguments":{
+    "category":"Laptop",
+    "tags":"general"
   }
 }
