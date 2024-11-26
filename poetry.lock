@@ -805,34 +805,9 @@ files = [
 dnspython = ">=2.0.0"
 idna = ">=2.0.0"
 
-[[package]]
-name = "emcie-common"
-version = "0.4.1a1"
-description = ""
-optional = false
-python-versions = "<4.0,>=3.12"
-files = [
-    {file = "emcie_common-0.4.1a1-py3-none-any.whl", hash = "sha256:113f1cebd210be55fc6e1709f9ebcc3a337f723e7b129d618bdf4caeab30ebd4"},
-    {file = "emcie_common-0.4.1a1.tar.gz", hash = "sha256:1994e07c1139a24e730b127ac9ee3867731a0b0e4ef2ec9a00fdf59b05d00b35"},
-]
-
 [package.dependencies]
 fastapi = ">=0.112.0,<0.113.0"
 uvicorn = ">=0.30.5,<0.31.0"
-
-[[package]]
-name = "emcie-sdk"
-version = "0.4.1a1"
-description = ""
-optional = false
-python-versions = "<4.0,>=3.12"
-files = [
-    {file = "emcie_sdk-0.4.1a1-py3-none-any.whl", hash = "sha256:64023628f312349ade006906c3d67cf70181d7ce2d8c437e863368ab5f681636"},
-    {file = "emcie_sdk-0.4.1a1.tar.gz", hash = "sha256:d386cd24d57d6d6ef5f0a98f49402db2aca8f1a99be83d45f408c5be91d63ca9"},
-]
-
-[package.dependencies]
-emcie-common = "0.4.1-alpha.1"
 
 [[package]]
 name = "eval-type-backport"

@@ -23,6 +23,7 @@ async def main():
     # verify if product category is in stock
     @tool(id="get_in_stock")
     async def get_in_stock(context: ToolContext, category: Categories) -> ToolResult:
+        """Verifies if product type is in stock"""
         all_db = (
             supabase.table("products")
             .select("id, title, variant_inventory_qty")
@@ -34,12 +35,18 @@ async def main():
             1 for item in all_db.data if item["variant_inventory_qty"] > 2
         )
         return ToolResult(in_stock_count > 2)
-
+    
+    @tool(id="get_product_tags")
+    async def get_product_tags(context: ToolContext, category: Categories, tags:Tags)-> ToolResult:
+        """Get relevant tags of the product"""
+        return ToolResult(TAG_VALUES[tags])
+    
     # fetch products by tags
     @tool(id="get_products_by_tags")
     async def get_products_by_tags(
         context: ToolContext, category: Categories, tags: str
     ) -> ToolResult:
+        """Gets list a products by tags"""
         tags_list = tags.split(",")
         unique_products = {}
 
@@ -59,14 +66,9 @@ async def main():
 
         return ToolResult(list(unique_products.values()))
     
-    @tool(id="get_products_by_tags_2")
-    async def get_products_by_tags_2(context: ToolContext, category: Categories, tags:Tags)-> ToolResult:
-        # print(category, tags)
-        # print(TAG_VALUES)
-        return ToolResult(TAG_VALUES[tags])
 
     async with PluginServer(
-        tools=[get_products_all, get_in_stock, get_products_by_tags, get_products_by_tags_2]
+        tools=[get_products_all, get_in_stock, get_product_tags, get_products_by_tags]
     ):
         pass
 
